@@ -1,0 +1,154 @@
+{
+  "tests": [
+    {
+      "name": "Test GapBuffer create",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Creating\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer inserting",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Insert\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 2
+    },
+    {
+      "name": "Test GapBuffer set cursor 1",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Setcursor1\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer set cursor 2",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Setcursor2\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer remove",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Remove\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer to string",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.ToString\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer length",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Length\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test GapBuffer break",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Gap.Break\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 2
+    },
+    {
+      "name": "Test Document create",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Document.Create\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Test Document InsertAfter 1",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Document.InsertAfter1\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 2
+    },
+    {
+      "name": "Test Document InsertAfter 2",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Document.InsertAfter2\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 2
+    },
+    {
+      "name": "Test Document InsertBefore",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Document.InsertBefore\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 2
+    },
+    {
+      "name": "Test Document Remove",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=Document.Remove\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 3
+    },
+    {
+      "name": "Test DocumentIO Read",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=DocumentIO.Read\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 5
+    },
+    {
+      "name": "Test DocumentIO Write",
+      "setup": "docker build -t test_wee .",
+      "run": "docker run --rm test_wee /bin/bash -c \"make clean; make test-build; ./test_wee --gtest_filter=DocumentIO.Write\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 5
+    }
+  ]
+}
