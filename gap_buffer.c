@@ -36,8 +36,14 @@ GapBuffer* gap_create() {
 void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
     int gapSize = gbuf->second_position - gbuf->insert_position;
     int substringSize;                                              //size of the substring need to move
+    
+    //if the gap buffer is all filled up (no gap), them simply just set move insert and second_position to new_position
+    if(gbuf->insert_position == gbuf->second_position){
+        gbuf->insert_position = new_position;
+        gbuf->second_position = new_position;
+    }
     //moving right
-    if(gbuf->insert_position < new_position){
+    else if(gbuf->insert_position < new_position){
         substringSize = new_position - gbuf->second_position + 1;   //the number of chars that need to move so that gap can move to new_position
         /*swapping places of substring and gap  
            moving the letters after gap (substring) to where insert_position is
