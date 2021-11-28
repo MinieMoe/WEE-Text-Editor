@@ -30,23 +30,31 @@ GapBuffer* gap_create() {
 }
 
 /*Moving cursor/gap to the left or right
-    cursor/gap can only move by 1 letter at a time?
+    cursor/gap can only move by 1 letter at a time? No
+
 */
 void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
     int gapSize = gbuf->second_position - gbuf->insert_position;
-    char letter = gbuf->data[new_position];
-    gbuf->data[new_position] = ' ';                                //remove the letter at the new_position
-
+    int substringSize;                                              //size of the substring need to move
     //moving right
     if(gbuf->insert_position < new_position){
-        gbuf->data[gbuf->insert_position]=letter;
-        gbuf->insert_position +=1;
+        substringSize = new_position - gbuf->second_position + 1;   //the number of chars that need to move so that gap can move to new_position
+        /*swapping places of substring and gap  
+           moving the letters after gap (substring) to where insert_position is
+           delete the substring at its old place
+        */
+        strncpy(&(gbuf->data[gbuf->insert_position]),&(gbuf->data[gbuf->second_position]),substringSize);
+        memset(&(gbuf->data[gbuf->second_position]),' ',substringSize);
+        //moving gap by updating insert and second_position
+        gbuf->insert_position = gbuf->insert_position + substringSize;      //move gap right after where substring is now
         gbuf->second_position = gbuf->insert_position + gapSize;
     //moving left
     }else{
+        substringSize = gbuf->insert_position - new_position;
         gbuf->insert_position = new_position;
         gbuf->second_position = gbuf->insert_position + gapSize;
-        gbuf->data[gbuf->second_position] = letter;
+        strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[new_position]),substringSize);
+        memset(&(gbuf->data[new_position]),' ',substringSize);
     }
 }
 
