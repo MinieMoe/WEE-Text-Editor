@@ -50,17 +50,19 @@ void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
            delete the substring at its old place
         */
         strncpy(&(gbuf->data[gbuf->insert_position]),&(gbuf->data[gbuf->second_position]),substringSize);
-        memset(&(gbuf->data[gbuf->second_position]),' ',substringSize);
         //moving gap by updating insert and second_position
         gbuf->insert_position = gbuf->insert_position + substringSize;      //move gap right after where substring is now
         gbuf->second_position = gbuf->insert_position + gapSize;
+        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);
     //moving left
     }else{
         substringSize = gbuf->insert_position - new_position;
+        //move gap/cursor to the new position
         gbuf->insert_position = new_position;
         gbuf->second_position = gbuf->insert_position + gapSize;
+        //moving substring right after gap/cursor
         strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[new_position]),substringSize);
-        memset(&(gbuf->data[new_position]),' ',substringSize);
+        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);
     }
 }
 
@@ -143,12 +145,23 @@ int gap_length(GapBuffer* gbuf) {
 GapBuffer* gap_break(GapBuffer* gbuf) {
     //initialize new GapBuffer
     GapBuffer* new_gbuf = gap_create();
+    int afterGap_letters = gbuf->size - gbuf->second_position;
 
     //copying the chars after the gap (starting at second_position) into the new_gbuf
-    int afterGap_letters = gbuf->size - gbuf->second_position;
-    strncpy(new_gbuf->data,&(gbuf->data[gbuf->second_position]),afterGap_letters);
-    //now that we moved the chars after gap to new gbuf, delete them at the old gbuf
+    char subString[afterGap_letters];
+    strncpy(subString,&(gbuf->data[gbuf->second_position]),afterGap_letters);
+    gap_insert_string(new_gbuf,afterGap_letters,subString);
+
+    //remove substring from gbuf and expand the gap
     memset(&(gbuf->data[gbuf->second_position]),' ',afterGap_letters);
+    gbuf->second_position = gbuf->size;
+    /*NOTE: instead of using the C library, use the method in this class to remove and insert chars into gap buffer
+        strncpy(new_gbuf->data,&(gbuf->data[gbuf->second_position]),afterGap_letters);
+        new_gbuf->insert_position = afterGap_letters;
+        //now that we moved the chars after gap to new gbuf, delete them at the old gbuf
+        memset(&(gbuf->data[gbuf->second_position]),' ',afterGap_letters);
+    */
+    
     return new_gbuf;
 }
 
