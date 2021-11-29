@@ -32,8 +32,7 @@ Line* line_create_gap(GapBuffer* gbuf) {
 Document* document_create() {
     Document* document = (Document*) malloc (sizeof(Document));
     //create the head and tail node and link them together to make a doubly linked list
-    document->head = NULL;
-    document->tail = document->head;        //the head and tail is the same when first initiated
+    document->head = document->tail = NULL;              //the head and tail is the same when first initiated
     document->num_lines = 0;
     return document;
 }
@@ -46,6 +45,9 @@ Line* document_get(Document* document, int row) {
     return target;
 }
 
+/*testcases:
+    InsertAfter1: check what happens if insert a new line to an empty document
+*/
 void document_insert_after(Document* document, Line* insertAfter, Line* newline) {
     //make newLine the new head and tail if document is empty?
     if(insertAfter == NULL){
@@ -54,24 +56,66 @@ void document_insert_after(Document* document, Line* insertAfter, Line* newline)
         document->tail = newline;
         newline->next = newline->previous = NULL;
 
-    }else{//NOTE: no need to traverse through linked list because the given parameters are already pointing to the right address 
+    }else{//NOTE: no need to traverse through linked list because the given parameters are already pointing to where we need to be
         Line* insertAfter_next = insertAfter->next;
         insertAfter->next = newline;
         newline->previous = insertAfter;
         newline->next = insertAfter_next;
-        insertAfter_next->previous = newline;
+        //if insertAfter is NOT a tail node, then make its successor's previous become the newLine
+        if(insertAfter_next != NULL){
+            insertAfter_next->previous = newline;
+        }//if insertAfter is a tail node, then make newLine the new tail
+        else{
+            document->tail = newline;
+        }
     }
-    document->num_lines +=1;
+    document->num_lines ++;
     
 
 }
 
 void document_insert_before(Document* document, Line* insertBefore, Line* newline) {
-    // Your code here
+    //make newLine the new head and tail if document is empty
+    if(insertBefore == NULL){
+        //making head and tail points to the place newLine is pointing at, a new line Node
+        document->head = newline;
+        document->tail = newline;
+        newline->next = newline->previous = NULL;
+    //same as insertAfter but in reverse
+    }else{
+        Line* insertBefore_prev = insertBefore->previous;
+        insertBefore->previous = newline;
+        newline->next = insertBefore;
+        newline->previous = insertBefore_prev;
+        //if insertBefore is NOT a head node, then make its predecessor's next points to newLine
+        if(insertBefore->previous != NULL){
+            insertBefore_prev->next = newline;
+        //if insertBefore is a head node, then make newLine the new head
+        }else{
+            document->head = newline;
+        }
+    }
+    document->num_lines ++;
 }
 
 void document_remove(Document* document, Line* line) {
-    // Your code here
+    //case: line to remove is a head
+    if(line == document->head){
+        document->head = document->head->next;      //make the head's successor the new head
+        document->head->previous = NULL;            //remove the old head by making the new head (successor) points to null
+        //free the removed line node?
+    }
+    //case: line to remove is a tail
+    else if(line == document->tail){
+        document->tail = document->tail->previous;
+        document->tail->next = NULL;
+    }
+    //case: line to remove is inbetween head and tail
+    else{
+        line->previous->next = line->next;          //make its predecessor points next to its successor, remove the line by jumping over it
+        line->next->previous = line->previous;      //make its successor points back to its predecessor
+    }
+    document->num_lines --;
 }
 
 Document* document_read(const char* filename) {

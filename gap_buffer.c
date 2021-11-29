@@ -53,7 +53,7 @@ void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
         //moving gap by updating insert and second_position
         gbuf->insert_position = gbuf->insert_position + substringSize;      //move gap right after where substring is now
         gbuf->second_position = gbuf->insert_position + gapSize;
-        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);
+        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);           //clear anything letters within the gap: these letters are from the substring at the old position
     //moving left
     }else{
         substringSize = gbuf->insert_position - new_position;
@@ -87,14 +87,14 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
             Hel|lo{     }        - array after adding more space: NOTE: {} indicate new space (to avoid confusion with gap indicated by [])
             Hel[     ]lo         - update the gap size by updating second_postion to a new location
                                   such that the difference between new location and end of array = number of letter after gap "lo"
-                                  then move "lo" into the new second_position and delete "lo" at the old position
+                                  then move "lo" into the new second_position and delete "lo" at the old position by clearing anything within the gap
         */
         if(gbuf->second_position != oldSize -1){                                            //if second_position is already at the end of the old array (before expanding), aka, no letters after the gap
                                                                                             //, then there's no letters to move to the end
             int afterGap_substring_size = oldSize - gbuf->second_position;                  //number of letters after the gap     
             gbuf->second_position = gbuf->size - afterGap_substring_size;                   //update second_position
             strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);
-            memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);
+            memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);//clear any letters inside the gap
         }else{
             gbuf->second_position = gbuf->size;
         }
