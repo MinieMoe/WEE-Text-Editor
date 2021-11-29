@@ -94,7 +94,7 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
             int afterGap_substring_size = oldSize - gbuf->second_position;                  //number of letters after the gap     
             gbuf->second_position = gbuf->size - afterGap_substring_size;                   //update second_position
             strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);
-            memset(&(gbuf->data[gbuf->insert_position]),' ',afterGap_substring_size);
+            memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);
         }else{
             gbuf->second_position = gbuf->size;
         }
