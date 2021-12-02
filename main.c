@@ -8,8 +8,24 @@
 #include "log.h"
 #include "status.h"
 
+int readTest(){
+    const char* filename = "testRead.txt";
+    Document* document = document_read(filename);
+    int i =1;
+    for (Line* line = document->head; line != NULL; line = line->next) {
+        printf("Line %d: %s\n",i, gap_to_string(line->gbuf));
+        i++;
+    }
 
+
+
+}
 int main(int argc, char* argv[]) {
+
+    //test
+    readTest();
+    exit(0);
+
     Document* document = NULL;
     char* filename = NULL;
     if (argc > 1) {
