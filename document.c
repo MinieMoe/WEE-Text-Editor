@@ -158,12 +158,13 @@ bool document_write(Document* document, const char* filename) {
     }else{
         FILE* file = fopen(filename,"w");
         Line* cur = document->head;
+        //print to the output file line by line starting from the first line (head)
         while(cur != NULL){
             char* string = gap_to_string(cur->gbuf);
-            //printf("%s\n",string); //testing
-            fwrite(string, 1, gap_length(cur->gbuf),file);
+            fputs(string,file);             //print string to the output file
+            fputs("\n",file);               //print a new line at the end
             free(string);
-            cur = cur->next;
+            cur = cur->next;                //move to the next line
         }
         free(cur);
         fclose(file);
