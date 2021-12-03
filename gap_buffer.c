@@ -77,8 +77,29 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
     if(gbuf->second_position == gbuf->insert_position){
         //grow the array size
         int oldSize = gbuf->size;
-        gbuf->size += DEFAULT_GAP_SIZE;
-        gbuf->data = (char*) realloc(gbuf->data,gbuf->size);
+        gbuf->size += DEFAULT_GAP_SIZE;                     //expanding the size of gbuf
+        
+        /* previously use realloc to expand the size of gbuf->data
+        without having to reinitializing char* data
+            but realloc is dangerous so avoid using it      
+            gbuf->data = (char*) realloc(gbuf->data,gbuf->size);
+        */
+        
+        char* new_data = (char*) malloc (sizeof(char)* gbuf->size);       //initializing a new char data with the expanded storage
+        /*Note: strncpy() copy the entire string until it reaches a null terminator
+            however, our gbuf->data is not a null terminated string, can't use
+            strncpy() to copy the whole string
+                strncpy(new_data,gbuf->data,strlen(gbuf->data));    //copying the data from old data to the new one
+            use memcpy() instead
+
+            and also because gbuf->data is not a nul terminated string
+            can't use strlen() to check the length of gbuf->data
+            use gap_length()
+        */
+        memcpy(new_data,gbuf->data,gap_length(gbuf));
+        free(gbuf->data);                                   //free old data array
+        gbuf->data = new_data;
+
         //grow the gap size now that more space is available
         /*expanding the gap by moving second_postion to the a new position
             how do we know the new posistion? the difference bewtween the end of the array and the new position = number of letters after the gap

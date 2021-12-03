@@ -138,6 +138,8 @@ Document* document_read(const char* filename) {
         gap_insert_string(a_gbuf,strlen(buffer),buffer);
         a_line = line_create_gap(a_gbuf);                           //assign a new line to the placeholder
         document_insert_after(document,document->tail,a_line);
+        printf("%s\n", gap_to_string(document->tail->gbuf));
+    
     }
     /*IMPORTANT: free() a malloc
     free(a_gbuf);
