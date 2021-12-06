@@ -22,9 +22,9 @@ int readTest(){
 }
 int main(int argc, char* argv[]) {
 
-    //test
-    readTest();
-    exit(0);
+    // //test
+    // readTest();
+    // exit(0);
 
     Document* document = NULL;
     char* filename = NULL;
@@ -52,12 +52,12 @@ int main(int argc, char* argv[]) {
     for (;;) {
         // Clear the screen
         terminal_clear();
-
+        
         // Draw the contents of the window
         window_draw(window);
         // Draw the status bar message here
-        // ...
-
+        status_message(0,height-1,"--Wee--");
+        
         // Get the current line that the cursor is on
         Line* currentline = document_get(document, window->current);
         // Move the cursor to the correct location on the screen
@@ -70,10 +70,14 @@ int main(int argc, char* argv[]) {
         // Wait for user input
         int ch = terminal_read();
         // Handle user input here
-        // ...
+        if (strcmp(terminal_keyname(ch), "^Q") == 0) {
+            exit(0);
+        }
     }
 
     terminal_end();
 
     // On quit, write the document to output file here
+    document_write(document,"outputMain.txt");
+
 }

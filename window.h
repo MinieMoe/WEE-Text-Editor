@@ -17,7 +17,7 @@ typedef struct {
     int first_row;
     int first_col;
 
-    // The current line we are editing
+    // The current line/row(y-coordinate) we are editing
     int current;
 } Window;
 

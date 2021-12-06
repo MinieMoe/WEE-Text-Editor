@@ -21,7 +21,7 @@ void terminal_refresh() {
 }
 
 void terminal_clear() {
-    clear();
+    erase();
 }
 
 void terminal_size(int* x, int* y) {
