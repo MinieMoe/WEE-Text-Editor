@@ -98,28 +98,67 @@ int main(int argc, char* argv[]) {
             if(currentline->gbuf->second_position < currentline->gbuf->size){//*second or insert?
 
                 //NOTE: this method below will updata insert and second_position so no need to update them again in main.c
-                gap_set_insert_position(currentline->gbuf,currentline->gbuf->second_position+1);//move right by 1 letter
+                gap_set_insert_position(currentline->gbuf,currentline->gbuf->insert_position+1);//move right by 1 letter
 
-                //scroll right if the line is too long for the screen size
-                if(currentline->gbuf->second_position - window->first_col == window->width){//*check this condition
-                    window->first_col +=1;
-                }
+                // //scroll right if the line is too long for the screen size
+                // if(currentline->gbuf->second_position - window->first_col == window->width){//*check this condition
+                //     window->first_col +=1;
+                // }
             }
         }else if(ch == KEY_LEFT){
             //if the cursor (insert_position) in the current line is not at the beginning of the line, can move left
             if(currentline->gbuf->insert_position > 0){
                 gap_set_insert_position(currentline->gbuf,currentline->gbuf->insert_position -1);
-                //scroll left if the line is too long for the screen size
-                if(currentline->gbuf->insert_position == window->first_col -1){
-                    window->first_col -=1;
-                }
+                
+                // //scroll left if the line is too long for the screen size
+                // if(currentline->gbuf->insert_position == window->first_col -1){
+                //     window->first_col -=1;
+                // }
             }
         }
+        /*user hitting the ENTER_KEY "^J":
+            at the end of a line - open up a new line AFTER the current line
+                add a new line to the document (document_insert_after())
+                change the Window's current line to the new line
+            at the beginning of a line - open up a new line BEFORE the current line
+                add a new line to the document (document_insert_before())
+                change the Window's current line to the new line
+        */
+        // }else if(strcmp(terminal_keyname(ch), "^J") == 0){
+        //     Line* newLine = line_create();
+        //     if(currentline->gbuf->second_position == currentline->gbuf->size){
+        //         document_insert_after(window->document,currentline,newLine);
+        //     }else if(currentline->gbuf->insert_position == 0){
+        //         document_insert_before(window->document,currentline,newLine);
+        //     }
+        //     currentline = newLine;
+        // }else{//if the user is entering a character, insert it
+        //     gap_insert_char(currentline->gbuf,ch);
+        // }
     }
 
     terminal_end();
 
     // On quit, write the document to output file here
     document_write(document,filename);
+
+    /*free everything
+    For every line in the document, free line->gbuf->data, then free line->gbuf, then line
+    Then free document itself and window
+    */
+    //Line** headpp = &(window->document->head);
+    // Line* cur = window->document->head;
+    // while(cur!=NULL){
+    //     Line* next = cur->next;
+    //     free(cur->gbuf->data);
+    //     free(cur->gbuf);
+    //     free(cur);
+    //     cur = next;
+    // }
+    // window->document->head = NULL; //is this neccesary?
+    // free(window->document);
+    // free(window);
+
+    
 
 }

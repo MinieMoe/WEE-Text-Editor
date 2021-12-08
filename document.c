@@ -158,7 +158,7 @@ bool document_write(Document* document, const char* filename) {
         printf("No document found.\n");
         return false;
     }else{
-        FILE* file = fopen(filename,"a");
+        FILE* file = fopen(filename,"w");
         Line* cur = document->head;
         //print to the output file line by line starting from the first line (head)
         while(cur != NULL){
