@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
         document = document_create();
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
+        filename = "unamed.txt"; //or *filename?
     }
 
     // Initialize the terminal screen
@@ -73,7 +74,7 @@ int main(int argc, char* argv[]) {
         int ch = terminal_read();
         // Handle user input here
         if (strcmp(terminal_keyname(ch), "^Q") == 0) {
-            exit(0);
+            break; //end the loop that's running the program
         }else if(ch == KEY_DOWN){
             //move the cursor down; make sure cursor doesn't go out of bound
             if(window->current < window->document->num_lines -1){
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
             if(currentline->gbuf->second_position < currentline->gbuf->size){//*second or insert?
 
                 //NOTE: this method below will updata insert and second_position so no need to update them again in main.c
-                gap_set_insert_position(currentline->gbuf,currentline->gbuf->second_position);//move right by 1 letter
+                gap_set_insert_position(currentline->gbuf,currentline->gbuf->second_position+1);//move right by 1 letter
 
                 //scroll right if the line is too long for the screen size
                 if(currentline->gbuf->second_position - window->first_col == window->width){//*check this condition
@@ -119,6 +120,6 @@ int main(int argc, char* argv[]) {
     terminal_end();
 
     // On quit, write the document to output file here
-    //document_write(document,"unnamed.txt");
+    document_write(document,filename);
 
 }

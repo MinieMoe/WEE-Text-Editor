@@ -44,8 +44,10 @@ void window_draw(Window* window) {
     int x =0;                           //always print lines at col 0
     for (int y = 0; y < window->height; y++){
         if(cur != NULL){
-            terminal_prints(x,y,gap_to_string(cur->gbuf));
+            char* string = gap_to_string(cur->gbuf);
+            terminal_prints(x,y,string);
             cur = cur->next;
+            free(string);
         }else{//if we reach a tail line, stop printing
             break;
         }
