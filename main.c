@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     // exit(0);
 
     Document* document = NULL;
-    char* filename = NULL;
+    char* filename = "unnamed.txt";
     if (argc > 1) {
         // Read filename if provided
         filename = argv[1];
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
         //filename = "unamed.txt"; //or *filename?
-        FILE* unamed = fopen("unamed.txt","r");
+        //FILE* unamed = fopen("unamed.txt","r");
     }
 
     // Initialize the terminal screen
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
     // On quit, write the document to output file here
     //document_write(document,filename);you're writing to the filename, which holds the input file, that's why it's rewriting everything
     document_write(document,"output.txt");//or output.txt?
-
+    document_write(document,filename);
 
     /*free everything
     For every line in the document, free line->gbuf->data, then free line->gbuf, then line

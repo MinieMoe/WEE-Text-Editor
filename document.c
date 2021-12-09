@@ -122,34 +122,46 @@ void document_remove(Document* document, Line* line) {
 Document* document_read(const char* filename) {
     FILE* file = fopen(filename,"r");
     Document* document = document_create();
-    Line* a_line = line_create();                                   //a pointer to the current line from the text input
-    char buffer[500];                                               //buffer to read one line at the time
+    //if file exists
+    if(file!= NULL){
+        Line* a_line = line_create();                                   //a pointer to the current line from the text input
+        char buffer[500];                                               //buffer to read one line at the time
+        //while loop initialize document by putting txt into document
     
-    while(fgets(buffer,500,file) != NULL){
-        buffer[strlen(buffer)-1] = '\0';                            //getting rid of the new line symbol that fgets() reads in
-        GapBuffer* a_gbuf = gap_create();                           //a pointer to the current string from the text input
-        /*NOTE: initialize gbuf inside a loop
-            if we don't initialize a_gbuf every iteration, we'll be adding new lines to the same a_gbuf
-            as a result, there's only one line/gbuf holding an entire paragraph\
-        this is also why we have line_create_gap() inside loop
-            every iteration, we are making a_line points to a new memory block
-            a_line is still the same pointer (same address) but points to differnt memory block every iteration
+        while(fgets(buffer,500,file) != NULL){
+            buffer[strlen(buffer)-1] = '\0';                            //getting rid of the new line symbol that fgets() reads in
+            GapBuffer* a_gbuf = gap_create();                           //a pointer to the current string from the text input
+            /*NOTE: initialize gbuf inside a loop
+                if we don't initialize a_gbuf every iteration, we'll be adding new lines to the same a_gbuf
+                as a result, there's only one line/gbuf holding an entire paragraph\
+            this is also why we have line_create_gap() inside loop
+                every iteration, we are making a_line points to a new memory block
+                a_line is still the same pointer (same address) but points to differnt memory block every iteration
+            */
+            gap_insert_string(a_gbuf,strlen(buffer),buffer);
+            a_line = line_create_gap(a_gbuf);                           //assign a new line to the placeholder
+            document_insert_after(document,document->tail,a_line);
+            printf("%s\n", gap_to_string(document->tail->gbuf));
+        
+        }
+        if(document->head == NULL){
+            Line* line = line_create();
+            document_insert_after(document, document->tail, line);
+        }
+        /*IMPORTANT: free() a malloc
+        free(a_gbuf);
+        free(a_line);
+        These will results in a segfault and no string is loaded into the document->data
+            because free() will eliminate memory block that a_gbuf and a_line pointing to
+        My mistake was that I thought free() gets rid of the pointers
+            which is incorrect, free() gets rid of the memory block that pointers point to 
         */
-        gap_insert_string(a_gbuf,strlen(buffer),buffer);
-        a_line = line_create_gap(a_gbuf);                           //assign a new line to the placeholder
-        document_insert_after(document,document->tail,a_line);
-        printf("%s\n", gap_to_string(document->tail->gbuf));
-    
+        fclose(file);
+    }else{//if file doesnt exist
+        Line* line = line_create();
+        document_insert_after(document, document->tail, line);
     }
-    /*IMPORTANT: free() a malloc
-    free(a_gbuf);
-    free(a_line);
-    These will results in a segfault and no string is loaded into the document->data
-        because free() will eliminate memory block that a_gbuf and a_line pointing to
-    My mistake was that I thought free() gets rid of the pointers
-        which is incorrect, free() gets rid of the memory block that pointers point to 
-    */
-    fclose(file);
+    
     return document;
 }
 
