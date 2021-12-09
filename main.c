@@ -167,6 +167,7 @@ int main(int argc, char* argv[]) {
             if insert_position == 0 (at the beginning of a line) -> combine the current line with the previous line
                 copy the current string to the previous string using gap_insert_string
                 remove the current line from document document_remove()
+                IMPORTANT: update window->current to the previous line after the current line is removed - caused segfault if not updating
                 NOTE: if currentLine is the first line -> backspace doesn't work
         */
         /*RORY: FIXED (need to update window->current)-when deleting a whole line
@@ -188,12 +189,13 @@ int main(int argc, char* argv[]) {
                     window->current --;//move to the previous line now that the current line is deleted
                 }
             }
+        /*if the user is entering a character, insert it
+            ' ' (space) is the lowest value SCII character and '~' is the highest value one,
+             if ch is somewhere between them then it has to be a valid ASCII character
+        */
+        }else if (ch >= ' ' && ch <= '~') {    // Any valid ASCII character
+            gap_insert_char(currentline->gbuf,ch);
         }
-        
-       
-        // else{//if the user is entering a character, insert it
-        //     gap_insert_char(currentline->gbuf,ch);
-        // }
 
     }
 
