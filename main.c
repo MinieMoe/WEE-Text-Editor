@@ -169,7 +169,9 @@ int main(int argc, char* argv[]) {
                 remove the current line from document document_remove()
                 NOTE: if currentLine is the first line -> backspace doesn't work
         */
-        /*RORY: 
+        /*RORY: FIXED (need to update window->current)-when deleting a whole line
+                , thr cursor move to the next line, instead of the previous line
+
         */
         else if(strcmp(terminal_keyname(ch), "^?") == 0 || ch == KEY_BACKSPACE){
             //break; //testing if this condition is executed - if it is, then the program will break
@@ -183,6 +185,7 @@ int main(int argc, char* argv[]) {
                     gap_insert_string(currentline->previous->gbuf,currentLength,currentString);
                     document_remove(window->document,currentline); //document or window->document?
                     free(currentString);
+                    window->current --;//move to the previous line now that the current line is deleted
                 }
             }
         }
