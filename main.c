@@ -9,7 +9,11 @@
 #include "status.h"
 /*RORY: you cant CTRL + F "RORY" to see where I put my comments for you at
 the core thing is that I don't know how to debug my terminal when it's running
-to see why my cursor is not moving or why breaking line delete everything after the cursor, etc */
+to see why my cursor is not moving or why breaking line delete everything after the cursor, etc
+UPDATE: i fixed the things above for now...I'm not sure if it's gonna cause any trouble so I would like
+you to take a look and test it
+
+Idk how to go about doing task 6 where we create a new file "unamed.txt" if i call ./wee by itself */
 int readTest(){
     const char* filename = "testRead.txt";
     Document* document = document_read(filename);
@@ -37,6 +41,7 @@ int main(int argc, char* argv[]) {
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
         //filename = "unamed.txt"; //or *filename?
+        FILE* unamed = fopen("unamed.txt","r");
     }
 
     // Initialize the terminal screen
@@ -203,25 +208,25 @@ int main(int argc, char* argv[]) {
 
     // On quit, write the document to output file here
     //document_write(document,filename);you're writing to the filename, which holds the input file, that's why it's rewriting everything
-    //document_write(document,"test/output.txt");//or output.txt?
+    document_write(document,"output.txt");//or output.txt?
 
 
     /*free everything
     For every line in the document, free line->gbuf->data, then free line->gbuf, then line
     Then free document itself and window
     */
-    //Line** headpp = &(window->document->head);
-    // Line* cur = window->document->head;
-    // while(cur!=NULL){
-    //     Line* next = cur->next;
-    //     free(cur->gbuf->data);
-    //     free(cur->gbuf);
-    //     free(cur);
-    //     cur = next;
-    // }
-    // window->document->head = NULL; //is this neccesary?
-    // free(window->document);
-    // free(window);
+    Line** headpp = &(window->document->head);
+    Line* cur = window->document->head;
+    while(cur!=NULL){
+        Line* next = cur->next;
+        free(cur->gbuf->data);
+        free(cur->gbuf);
+        free(cur);
+        cur = next;
+    }
+    window->document->head = NULL; //is this neccesary?
+    free(window->document);
+    free(window);
 
     
 
