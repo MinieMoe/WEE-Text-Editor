@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
             }else if(currentline->gbuf->insert_position == 0){
                 newLine = line_create();
                 document_insert_before(window->document,currentline,newLine);
-                window->current --;
+                //window->current --;
             }else if(currentline->gbuf->insert_position > 0 && currentline->gbuf->second_position < currentline->gbuf->size){//in the middle of the line
                 GapBuffer* new_gbuf = gap_break(currentline->gbuf);
                 newLine = line_create_gap(new_gbuf);

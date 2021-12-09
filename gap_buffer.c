@@ -157,7 +157,7 @@ char* gap_to_string(GapBuffer* gbuf) {
     char* string = (char*) malloc(sizeof(char)*stringSize);
     
     //putting char from data to string, exlcuding the gap
-    for(int s = 0, gb = 0; s < stringSize - 1, gb < gbuf->size; gb++){
+    for(int s = 0, gb = 0; s < stringSize - 1 && gb < gbuf->size; gb++){
         if(gb >= gbuf->insert_position && gb < gbuf->second_position){
             continue;
         }
