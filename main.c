@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
                     window->first_row --;
                 }
             }
-        /*RORY: when I'm shifting right, in some lines, you can move right
+        /*RORY - update: I FIXED IT!!: when I'm shifting right, in some lines, you can move right
         , but in some lines, the cursor is stuck and I can't move at all
         there is a few ocasion where it's adding weird chars and the cursor moving by itself without me typing anything
         */
@@ -130,23 +130,35 @@ int main(int argc, char* argv[]) {
         NOTE: breaking in the middle delete everything after the gap
             break infront of the first line cause segfault
         */
-        /*RORY:  breaking in the middle delete everything after the gap
-                break infront of the first line cause segfault
+        /*RORY: FIXED- breaking in the middle delete everything after the gap and the newLine prints out nothing
+                NOT FIXED- break infront of the first line cause segfault
+                NOT FIXED - when break at the beginning, the cursor move up twice
+            
+            Narrowing things down:
+            when run gdb for middle breaking:
+                window->doc->num_lines increases by 1 -> so a new line was inserted
+            then newline->data has no value?
+            UPDATE: I figured it out! i called line_create(new_gbuf) instead of line_create_gap(new_gbuf)
+                line_create() return an empty data so that's why nothing is prints out
+
         */
         else if(strcmp(terminal_keyname(ch), "^J") == 0){
             Line* newLine;
             if(currentline->gbuf->second_position == currentline->gbuf->size){
                 newLine = line_create();
                 document_insert_after(window->document,currentline,newLine);
+                window->current ++;
             }else if(currentline->gbuf->insert_position == 0){
                 newLine = line_create();
                 document_insert_before(window->document,currentline,newLine);
-            }else{//in the middle of the line
-                newLine = line_create(gap_break(currentline->gbuf));
+                window->current --;
+            }else if(currentline->gbuf->insert_position > 0 && currentline->gbuf->second_position < currentline->gbuf->size){//in the middle of the line
+                GapBuffer* new_gbuf = gap_break(currentline->gbuf);
+                newLine = line_create_gap(new_gbuf);
                 //print out the new line to the terminal???
                 document_insert_after(window->document,currentline,newLine);
+                window->current++;
             }
-            currentline = newLine;
         }
         
        /*backspace - remove a char
@@ -157,8 +169,7 @@ int main(int argc, char* argv[]) {
                 remove the current line from document document_remove()
                 NOTE: if currentLine is the first line -> backspace doesn't work
         */
-        /*RORU: nothing is deleted when I hit BACKSPACE
-            maybe my laptop doesn't recognize ^? as a backspace symbol
+        /*RORY: 
         */
         else if(strcmp(terminal_keyname(ch), "^?") == 0 || ch == KEY_BACKSPACE){
             //break; //testing if this condition is executed - if it is, then the program will break
