@@ -7,7 +7,9 @@
 #include "terminal.h"
 #include "log.h"
 #include "status.h"
-
+/*RORY: you cant CTRL + F "RORY" to see where I put my comments for you at
+the core thing is that I don't know how to debug my terminal when it's running
+to see why my cursor is not moving or why breaking line delete everything after the cursor, etc */
 int readTest(){
     const char* filename = "testRead.txt";
     Document* document = document_read(filename);
@@ -16,9 +18,6 @@ int readTest(){
         printf("Line %d: %s\n",i, gap_to_string(line->gbuf));
         i++;
     }
-
-
-
 }
 int main(int argc, char* argv[]) {
 
@@ -37,7 +36,7 @@ int main(int argc, char* argv[]) {
         document = document_create();
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
-        filename = "unamed.txt"; //or *filename?
+        //filename = "unamed.txt"; //or *filename?
     }
 
     // Initialize the terminal screen
@@ -72,6 +71,7 @@ int main(int argc, char* argv[]) {
             GOAL of this part: updating window->first_row and current so we know what to print for the next iteration
         */
         int ch = terminal_read();
+        log_debug("ch= %d\n", ch);
         // Handle user input here
         if (strcmp(terminal_keyname(ch), "^Q") == 0) {
             break; //end the loop that's running the program
@@ -93,27 +93,30 @@ int main(int argc, char* argv[]) {
                     window->first_row --;
                 }
             }
+        /*RORY: when I'm shifting right, in some lines, you can move right
+        , but in some lines, the cursor is stuck and I can't move at all
+        there is a few ocasion where it's adding weird chars and the cursor moving by itself without me typing anything
+        */
         }else if(ch == KEY_RIGHT){
             //if the cursor (second_position) in the current line is not at the end of the line, can move right
             if(currentline->gbuf->second_position < currentline->gbuf->size){//*second or insert?
-
                 //NOTE: this method below will updata insert and second_position so no need to update them again in main.c
                 gap_set_insert_position(currentline->gbuf,currentline->gbuf->insert_position+1);//move right by 1 letter
 
-                // //scroll right if the line is too long for the screen size
-                // if(currentline->gbuf->second_position - window->first_col == window->width){//*check this condition
-                //     window->first_col +=1;
-                // }
+                /*scroll right if the line is too long for the screen size
+                if(currentline->gbuf->second_position - window->first_col == window->width){//*check this condition
+                    window->first_col +=1;
+                }*/
             }
         }else if(ch == KEY_LEFT){
             //if the cursor (insert_position) in the current line is not at the beginning of the line, can move left
             if(currentline->gbuf->insert_position > 0){
                 gap_set_insert_position(currentline->gbuf,currentline->gbuf->insert_position -1);
                 
-                // //scroll left if the line is too long for the screen size
-                // if(currentline->gbuf->insert_position == window->first_col -1){
-                //     window->first_col -=1;
-                // }
+                /*scroll left if the line is too long for the screen size
+                if(currentline->gbuf->insert_position == window->first_col -1){
+                    window->first_col -=1;
+                }*/
             }
         }
         /*user hitting the ENTER_KEY "^J":
@@ -123,24 +126,69 @@ int main(int argc, char* argv[]) {
             at the beginning of a line - open up a new line BEFORE the current line
                 add a new line to the document (document_insert_before())
                 change the Window's current line to the new line
+            at the middle of a line - get the newLine by calling gap_break()
+        NOTE: breaking in the middle delete everything after the gap
+            break infront of the first line cause segfault
         */
-        // }else if(strcmp(terminal_keyname(ch), "^J") == 0){
-        //     Line* newLine = line_create();
-        //     if(currentline->gbuf->second_position == currentline->gbuf->size){
-        //         document_insert_after(window->document,currentline,newLine);
-        //     }else if(currentline->gbuf->insert_position == 0){
-        //         document_insert_before(window->document,currentline,newLine);
-        //     }
-        //     currentline = newLine;
-        // }else{//if the user is entering a character, insert it
+        /*RORY:  breaking in the middle delete everything after the gap
+                break infront of the first line cause segfault
+        */
+        else if(strcmp(terminal_keyname(ch), "^J") == 0){
+            Line* newLine;
+            if(currentline->gbuf->second_position == currentline->gbuf->size){
+                newLine = line_create();
+                document_insert_after(window->document,currentline,newLine);
+            }else if(currentline->gbuf->insert_position == 0){
+                newLine = line_create();
+                document_insert_before(window->document,currentline,newLine);
+            }else{//in the middle of the line
+                newLine = line_create(gap_break(currentline->gbuf));
+                //print out the new line to the terminal???
+                document_insert_after(window->document,currentline,newLine);
+            }
+            currentline = newLine;
+        }
+        
+       /*backspace - remove a char
+            if insert_position > 0 (not at the beginning of a line) -> delete the char before insert
+                use gap_remove_char()
+            if insert_position == 0 (at the beginning of a line) -> combine the current line with the previous line
+                copy the current string to the previous string using gap_insert_string
+                remove the current line from document document_remove()
+                NOTE: if currentLine is the first line -> backspace doesn't work
+        */
+        /*RORU: nothing is deleted when I hit BACKSPACE
+            maybe my laptop doesn't recognize ^? as a backspace symbol
+        */
+        else if(strcmp(terminal_keyname(ch), "^?") == 0 || ch == KEY_BACKSPACE){
+            //break; //testing if this condition is executed - if it is, then the program will break
+            if(currentline->gbuf->insert_position > 0){
+                gap_remove_char(currentline->gbuf);
+            }else if(currentline->gbuf->insert_position == 0){
+
+                if(currentline->previous != NULL){ // or currentline != window->document->head
+                    char* currentString = gap_to_string(currentline->gbuf);
+                    int currentLength = gap_length(currentline->gbuf);
+                    gap_insert_string(currentline->previous->gbuf,currentLength,currentString);
+                    document_remove(window->document,currentline); //document or window->document?
+                    free(currentString);
+                }
+            }
+        }
+        
+       
+        // else{//if the user is entering a character, insert it
         //     gap_insert_char(currentline->gbuf,ch);
         // }
+
     }
 
     terminal_end();
 
     // On quit, write the document to output file here
-    document_write(document,filename);
+    //document_write(document,filename);you're writing to the filename, which holds the input file, that's why it's rewriting everything
+    //document_write(document,"test/output.txt");//or output.txt?
+
 
     /*free everything
     For every line in the document, free line->gbuf->data, then free line->gbuf, then line

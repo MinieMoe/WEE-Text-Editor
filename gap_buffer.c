@@ -36,7 +36,9 @@ GapBuffer* gap_create() {
 void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
     int gapSize = gbuf->second_position - gbuf->insert_position;
     int substringSize;                                              //size of the substring need to move
-    
+    int old_insert_position = gbuf->insert_position;                //keep the original position before updating
+    int old_second_position = gbuf->second_position;
+
     //if the gap buffer is all filled up (no gap), them simply just set move insert and second_position to new_position
     if(gbuf->insert_position == gbuf->second_position){
         gbuf->insert_position = new_position;
@@ -44,16 +46,27 @@ void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
     }
     //moving right
     else if(gbuf->insert_position < new_position){
-        substringSize = new_position - gbuf->second_position + 1;   //the number of chars that need to move so that gap can move to new_position
+
+        //new_position is outside of gap/cursor -> update second_position = new_position + 1
+        if(new_position >= gbuf->second_position){
+            substringSize = new_position - gbuf->second_position + 1;           //the number of chars that need to move so that gap can move to new_position
+            //moving gap by updating insert
+            gbuf->insert_position = gbuf->insert_position + substringSize;      //move gap right after where substring is now
+        
+        //new_position is inside gap/cursor -> update insert_position = new_position
+        }else if(new_position < gbuf->second_position){
+            substringSize = new_position - gbuf->insert_position;
+            gbuf->insert_position = new_position;
+        }
+        gbuf->second_position = gbuf->insert_position + gapSize;                //moving gap by updating second
+        memcpy(&(gbuf->data[old_insert_position]),&(gbuf->data[old_second_position]), substringSize);
+        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);               //clear anything letters within the gap: these letters are from the substring at the old position
+
         /*swapping places of substring and gap  
            moving the letters after gap (substring) to where insert_position is
            delete the substring at its old place
         */
-        strncpy(&(gbuf->data[gbuf->insert_position]),&(gbuf->data[gbuf->second_position]),substringSize);
-        //moving gap by updating insert and second_position
-        gbuf->insert_position = gbuf->insert_position + substringSize;      //move gap right after where substring is now
-        gbuf->second_position = gbuf->insert_position + gapSize;
-        memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);           //clear anything letters within the gap: these letters are from the substring at the old position
+        
     //moving left
     }else{
         substringSize = gbuf->insert_position - new_position;
@@ -61,7 +74,7 @@ void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
         gbuf->insert_position = new_position;
         gbuf->second_position = gbuf->insert_position + gapSize;
         //moving substring right after gap/cursor
-        strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[new_position]),substringSize);
+        memcpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[new_position]),substringSize);
         memset(&(gbuf->data[gbuf->insert_position]),' ',gapSize);
     }
 }
@@ -114,7 +127,7 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
                                                                                             //, then there's no letters to move to the end
             int afterGap_substring_size = oldSize - gbuf->second_position;                  //number of letters after the gap     
             gbuf->second_position = gbuf->size - afterGap_substring_size;                   //update second_position
-            strncpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);
+            memcpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);
             memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);//clear any letters inside the gap
         }else{
             gbuf->second_position = gbuf->size;
@@ -170,11 +183,11 @@ GapBuffer* gap_break(GapBuffer* gbuf) {
 
     //copying the chars after the gap (starting at second_position) into the new_gbuf
     char subString[afterGap_letters];
-    strncpy(subString,&(gbuf->data[gbuf->second_position]),afterGap_letters);
+    memcpy(subString,&(gbuf->data[gbuf->second_position]),afterGap_letters);
     gap_insert_string(new_gbuf,afterGap_letters,subString);
 
     //remove substring from gbuf and expand the gap
-    memset(&(gbuf->data[gbuf->second_position]),' ',afterGap_letters);
+    //memset(&(gbuf->data[gbuf->second_position]),' ',afterGap_letters);
     gbuf->second_position = gbuf->size;
     /*NOTE: instead of using the C library, use the method in this class to remove and insert chars into gap buffer
         strncpy(new_gbuf->data,&(gbuf->data[gbuf->second_position]),afterGap_letters);

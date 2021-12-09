@@ -1,3 +1,6 @@
 I hate this method
 I free pointers to the memory blocks, which makes the block dissappear
 free() doesn't delete the pointer, it deletes the memory block the pointer pointing to
+Test for moving cursor to the right
+some lines let the cursor move to right
+some lines don't
