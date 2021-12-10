@@ -7,3 +7,5 @@ You should get to a point where Wee is working enough that you can continue deve
 How's that for recursion?
 
 The project writeup is available [here](https://docs.google.com/document/d/1k6GFOYSCLteJvejpsdNFI1JaIKLd92TM3L2t039Mnbg/edit?usp=sharing).
+
+Min Nguyen
