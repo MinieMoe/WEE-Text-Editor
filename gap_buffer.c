@@ -79,15 +79,12 @@ void gap_set_insert_position(GapBuffer* gbuf, int new_position) {
     }
 }
 
-/*
-
-*/
 void gap_insert_char(GapBuffer* gbuf, char c) {
     
     /* If we run out of space in the gap to insert more char, then grow the array size by using realloc
         realloc - re-allocate a memory block that was already allocated with new size
     */
-    if(gbuf->second_position == gbuf->insert_position){
+    if(gbuf->second_position == gbuf->insert_position){     //gap is all filled up
         //grow the array size
         int oldSize = gbuf->size;
         gbuf->size += DEFAULT_GAP_SIZE;                     //expanding the size of gbuf
@@ -109,8 +106,8 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
             can't use strlen() to check the length of gbuf->data
             use gap_length()
         */
-        memcpy(new_data,gbuf->data,gap_length(gbuf));
-        free(gbuf->data);                                   //free old data array
+        memcpy(new_data,gbuf->data,oldSize);                               //copy data to the new expanded string (VALGRIND leaks here - solution, use oldSize instead of gap_length() because the size of gbuf->data is oldsize )
+        free(gbuf->data);                                                 //free old data array
         gbuf->data = new_data;
 
         //grow the gap size now that more space is available
@@ -125,18 +122,17 @@ void gap_insert_char(GapBuffer* gbuf, char c) {
         */
         if(gbuf->second_position != oldSize -1){                                            //if second_position is already at the end of the old array (before expanding), aka, no letters after the gap
                                                                                             //, then there's no letters to move to the end
-            int afterGap_substring_size = oldSize - gbuf->second_position;                  //number of letters after the gap     
+            int afterGap_substring_size = oldSize - gbuf->second_position;                  //number of letters after the gap/cursor     
             gbuf->second_position = gbuf->size - afterGap_substring_size;                   //update second_position
-            memcpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);
-            memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);//clear any letters inside the gap
+            memcpy(&(gbuf->data[gbuf->second_position]),&(gbuf->data[gbuf->insert_position]),afterGap_substring_size);//move letters after the cursor (at insert_pos) to the new place now that gap is expanded
+            /*memset(&(gbuf->data[gbuf->insert_position]),' ',gbuf->second_position - gbuf->insert_position);
+            clearing letters inside the gap is unnecsaary because when printing out data, everything inside gap is ignored and not printed.
+            */
         }else{
             gbuf->second_position = gbuf->size;
         }
-        
-        //gbuf->insert_position +=1;
-        
     }
-    //inserting the new char at the insert position and then update the insert_position
+    //if gap is not filled up, simply inserting the new char at the insert position and then update the insert_position
     gbuf->data[gbuf->insert_position] = c;
     gbuf->insert_position +=1;
 }

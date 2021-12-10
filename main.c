@@ -7,13 +7,7 @@
 #include "terminal.h"
 #include "log.h"
 #include "status.h"
-/*RORY: you cant CTRL + F "RORY" to see where I put my comments for you at
-the core thing is that I don't know how to debug my terminal when it's running
-to see why my cursor is not moving or why breaking line delete everything after the cursor, etc
-UPDATE: i fixed the things above for now...I'm not sure if it's gonna cause any trouble so I would like
-you to take a look and test it
 
-Idk how to go about doing task 6 where we create a new file "unamed.txt" if i call ./wee by itself */
 int readTest(){
     const char* filename = "testRead.txt";
     Document* document = document_read(filename);
@@ -40,8 +34,6 @@ int main(int argc, char* argv[]) {
         document = document_create();
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
-        //filename = "unamed.txt"; //or *filename?
-        //FILE* unamed = fopen("unamed.txt","r");
     }
 
     // Initialize the terminal screen
@@ -76,7 +68,6 @@ int main(int argc, char* argv[]) {
             GOAL of this part: updating window->first_row and current so we know what to print for the next iteration
         */
         int ch = terminal_read();
-        log_debug("ch= %d\n", ch);
         // Handle user input here
         if (strcmp(terminal_keyname(ch), "^Q") == 0) {
             break; //end the loop that's running the program
@@ -156,7 +147,10 @@ int main(int argc, char* argv[]) {
             }else if(currentline->gbuf->insert_position == 0){
                 newLine = line_create();
                 document_insert_before(window->document,currentline,newLine);
-                //window->current --;
+                /*window->current --; no need to update for this case 
+                bc when a new line is inserted before a current line, the curent line is shifted down
+                which makes index of newline in the linked list = window->current
+                */
             }else if(currentline->gbuf->insert_position > 0 && currentline->gbuf->second_position < currentline->gbuf->size){//in the middle of the line
                 GapBuffer* new_gbuf = gap_break(currentline->gbuf);
                 newLine = line_create_gap(new_gbuf);
@@ -175,9 +169,8 @@ int main(int argc, char* argv[]) {
                 IMPORTANT: update window->current to the previous line after the current line is removed - caused segfault if not updating
                 NOTE: if currentLine is the first line -> backspace doesn't work
         */
-        /*RORY: FIXED (need to update window->current)-when deleting a whole line
+        /*FIXED (need to update window->current)-when deleting a whole line
                 , thr cursor move to the next line, instead of the previous line
-
         */
         else if(strcmp(terminal_keyname(ch), "^?") == 0 || ch == KEY_BACKSPACE){
             //break; //testing if this condition is executed - if it is, then the program will break
@@ -206,7 +199,7 @@ int main(int argc, char* argv[]) {
 
     terminal_end();
 
-    // On quit, write the document to output file here
+    //SAVING: On quit, write the document to output file here
     //document_write(document,filename);you're writing to the filename, which holds the input file, that's why it's rewriting everything
     document_write(document,"output.txt");//or output.txt?
     document_write(document,filename);
@@ -227,7 +220,11 @@ int main(int argc, char* argv[]) {
     window->document->head = NULL; //is this neccesary?
     free(window->document);
     free(window);
-
+    /*Valgrind tests:
+    no leaks for ./wee
+    no leaks for ./wee exisiting file name with lines in it
+    no leaks for ./wee existing file name with no lines
+    */
     
 
 }

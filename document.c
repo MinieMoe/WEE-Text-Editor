@@ -124,10 +124,13 @@ Document* document_read(const char* filename) {
     Document* document = document_create();
     //if file exists
     if(file!= NULL){
-        Line* a_line = line_create();                                   //a pointer to the current line from the text input
+        /*VALGRIND solutions: Line* a_line = line_create();
+            declaring this outside of while loop, then initializing it again inside while cause memory leaks
+            because you create a memory block here, then inside the loop (line 144) makes the pointer a_line point to 
+            a new memory block. This leaves no pointer pointing to the memory block created here outside of while loop
+        */
         char buffer[500];                                               //buffer to read one line at the time
         //while loop initialize document by putting txt into document
-    
         while(fgets(buffer,500,file) != NULL){
             buffer[strlen(buffer)-1] = '\0';                            //getting rid of the new line symbol that fgets() reads in
             GapBuffer* a_gbuf = gap_create();                           //a pointer to the current string from the text input
@@ -139,11 +142,14 @@ Document* document_read(const char* filename) {
                 a_line is still the same pointer (same address) but points to differnt memory block every iteration
             */
             gap_insert_string(a_gbuf,strlen(buffer),buffer);
-            a_line = line_create_gap(a_gbuf);                           //assign a new line to the placeholder
+            Line* a_line = line_create_gap(a_gbuf);                           //assign a new line to the placeholder
             document_insert_after(document,document->tail,a_line);
-            printf("%s\n", gap_to_string(document->tail->gbuf));
+            char* string = gap_to_string(document->tail->gbuf);
+            printf("%s\n",string);
+            free(string);                                               //free string whenever use gap_to_string()
         
         }
+        //if file exists, but is empty, make document with empty line to avoid segfault
         if(document->head == NULL){
             Line* line = line_create();
             document_insert_after(document, document->tail, line);
@@ -157,7 +163,7 @@ Document* document_read(const char* filename) {
             which is incorrect, free() gets rid of the memory block that pointers point to 
         */
         fclose(file);
-    }else{//if file doesnt exist
+    }else{//if file doesnt exist, just make document with empty file
         Line* line = line_create();
         document_insert_after(document, document->tail, line);
     }
