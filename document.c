@@ -88,7 +88,7 @@ void document_insert_before(Document* document, Line* insertBefore, Line* newlin
         newline->next = insertBefore;
         newline->previous = insertBefore_prev;
         //if insertBefore is NOT a head node, then make its predecessor's next points to newLine
-        if(insertBefore->previous != NULL){
+        if(insertBefore->previous != NULL && insertBefore_prev != NULL){
             insertBefore_prev->next = newline;
         //if insertBefore is a head node, then make newLine the new head
         }else{
